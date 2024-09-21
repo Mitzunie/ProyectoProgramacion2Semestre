@@ -5,6 +5,12 @@ import datetime
 
 def opt():
     while True:
+        opcion = input("> Ingresa la tarea que deseas ejecutar: ")
+        if opcion.isdigit():
+            opcion = int(opcion)
+            return opcion
+        else:
+            print("\n----------========== Advertencia ==========----------\n> Opción Invalida, Vuelve a intentarlo...\n----------=================================----------")
         return    
 def tarea1():
     return
@@ -13,6 +19,15 @@ def tarea2():
 def tarea3():
     return
 def tarea4():
+    print("\n> Debes ingresar el intervalo de tiempo para buscar los sismos.\n")
+    print("\n>> Fecha de Inicio Intervalo <<\n")
+    año1 = input("> Ingresa el año:")
+    mes1 = input("> Ingresa el mes:")
+    dia1 = input("> Ingresa el día:")
+    print("\n>> Fecha de Finalización Intervalo <<\n")
+    año2 = input("> Ingresa el año:")
+    mes2 = input("> Ingresa el mes:")
+    dia2 = input("> Ingresa el día:")
     return
 def tarea5():
     return
@@ -32,7 +47,7 @@ url = "https://www.sismologia.cl/sismicidad/catalogo/2024/09/20240920.html"
 
 respuesta = requests.get(url)
 
-print("\n------============------\n\nIniciando Conexión...\n")
+print("\n------====== Verificación de Conexión ======------\n\nIniciando Conexión...\n")
 if respuesta.status_code == 200:
     print("Conexión Exitosa...")
 elif respuesta.status_code == 404:
@@ -43,7 +58,7 @@ elif respuesta.status_code == 403:
     print(f"Conexión Fallida (FORBIDDEN), El servidor detecta la petición pero el servidor no cumple con esta.\nCODE: {respuesta.status_code}")
 else: 
     print(f"Conexión Fallida: {respuesta.status_code}.")
-print("\n------============------\n")
+print("\n------======================================------\n")
 
 fecha_actual = datetime.datetime.today().strftime('%d/%m/%Y')
 
@@ -61,29 +76,30 @@ while True:
     print("10.- Grafico Comparativo Sismos")
     print("0.- Salir del Programa")
     
-    opt = opt()
+    opcion = opt()
     
-    if opt == 1:
+    if opcion == 1:
         tarea1()
-    elif opt == 2:
+    elif opcion == 2:
         tarea2()
-    elif opt == 3:
+    elif opcion == 3:
         tarea3()
-    elif opt == 4:
+    elif opcion == 4:
         tarea4()
-    elif opt == 5:
+    elif opcion == 5:
         tarea5()
-    elif opt == 6:
+    elif opcion == 6:
         tarea6()
-    elif opt == 7:
+    elif opcion == 7:
         tarea7()
-    elif opt == 8:
+    elif opcion == 8:
         tarea8()
-    elif opt == 9:
+    elif opcion == 9:
         tarea9()
-    elif opt == 10:
+    elif opcion == 10:
         tarea10()
-    elif opt == 0:
-        exit
+    elif opcion == 0:
+        print("\nFinalizando Programa, ¡Adiós!\n")
+        break
     else:
-        print("> La opción Ingresada es INVALIDA, Reintentalo Nuevamente...")
+        print("\n> La opción Ingresada es INVALIDA, Reintentalo Nuevamente...\n")
