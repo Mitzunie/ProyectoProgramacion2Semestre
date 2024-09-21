@@ -28,6 +28,9 @@ def tarea4():
     año2 = input("> Ingresa el año:")
     mes2 = input("> Ingresa el mes:")
     dia2 = input("> Ingresa el día:")
+    
+    fecha_inicio = datetime.datetime(int(año1), int(mes1), int(dia1))
+    fecha_fin = 
     return
 def tarea5():
     return
