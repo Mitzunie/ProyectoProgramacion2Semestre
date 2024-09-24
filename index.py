@@ -30,7 +30,7 @@ def tarea4():
     dia2 = input("> Ingresa el día:")
     
     fecha_inicio = datetime.datetime(int(año1), int(mes1), int(dia1))
-    fecha_fin = datetime.dateto,e(int(año2), int(mes2), int(dia2))
+    fecha_fin = datetime.datetime(int(año2), int(mes2), int(dia2))
     
     return
 def tarea5():
