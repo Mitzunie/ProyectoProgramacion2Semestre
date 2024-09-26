@@ -32,6 +32,17 @@ def tarea4():
     fecha_inicio = datetime.datetime(int(año1), int(mes1), int(dia1))
     fecha_fin = datetime.datetime(int(año2), int(mes2), int(dia2))
     
+    while fecha_inicio > fecha_actual or fecha_fin > fecha_actual:
+        print("\n> Fecha invalida, no puedes ver el futuro...\n")
+        print("\n>> Fecha de Inicio Intervalo <<\n")
+        año1 = input("> Ingresa el año:")
+        mes1 = input("> Ingresa el mes:")
+        dia1 = input("> Ingresa el día:")
+        print("\n>> Fecha de Finalización Intervalo <<\n")
+        año2 = input("> Ingresa el año:")
+        mes2 = input("> Ingresa el mes:")
+        dia2 = input("> Ingresa el día:")
+    
     return
 def tarea5():
     return
@@ -45,7 +56,6 @@ def tarea9():
     return
 def tarea10():
     return
-
 
 url = "https://www.sismologia.cl/sismicidad/catalogo/2024/09/20240920.html"
 
