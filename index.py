@@ -9,7 +9,7 @@ from termcolor import colored
 
 def opt():
     while True:
-        opcion = input("> Ingresa la tarea que deseas ejecutar: ")
+        opcion = input(colored("\n> Ingresa la tarea que deseas ejecutar: ", "cyan"))
         if opcion.isdigit():
             opcion = int(opcion)
             return opcion
@@ -22,8 +22,7 @@ def tarea1():
     return
 def tarea2():
     Year = datetime.datetime.today().strftime("%Y")
-    #Month = datetime.datetime.today().strftime("%m")
-    Month = 15
+    Month = datetime.datetime.today().strftime("%m")
     CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
     today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{CompleteDate}.html"
     status = requests.get(today_url)
@@ -51,7 +50,7 @@ def tarea2():
                  profundidad_str = profundidad_str.replace("km", "").strip()
                  
                 try:
-                    profundidad = float(profundidad_str.replace(",", "."))
+                    profundidad = int(profundidad_str.replace(",", "."))
                     profundidades.append(profundidad)
                 except ValueError:
                     print(colored(f"\n> Error al convertir profundidad: {profundidad_str}\n", "red"))
@@ -111,15 +110,15 @@ def tarea9():
 def tarea10():
     return
 
-url = "https://www.sismologia.cl/"
-
+#url = "https://www.sismologia.cl/"
+url = "https://www.sismologia.cl/sismicidad/catalogo/2024/10/20241015.html"
 
 respuesta = requests.get(url)
 
 print(colored("\n----------========== Verificando Conexión ==========----------\n","light_yellow"))
 if respuesta.status_code == 200:
-    print(colored("> Conexión Establecida Exitosamente!\n","green"))
-    print(colored("----------========================================----------\n","light_yellow"))
+    print(colored("           > Conexión Establecida Exitosamente!\n","green"))
+    print(colored("----------==========================================----------\n","light_yellow"))
 
     fecha_actual = datetime.datetime.today().strftime('%d/%m/%Y')
 
@@ -164,14 +163,25 @@ if respuesta.status_code == 200:
             break
             
 elif respuesta.status_code == 404:
-    print(colored(f">Conexión Fallida, No se encuentra la página que buscas...\nCODE: {respuesta.status_code}", "red"))
+    print(colored("     > Status: Conexión Fallida", "red"))
+    print(colored("     > Detalles: No se encuentra la página que buscas...", "yellow"))
+    print(colored(f"     > CODE: {respuesta.status_code}", "red"))
+    print(colored("     > Finalizando Programa Debido a problemas con la conexión. <", "red"))
     print(colored("\n----------==========================================----------\n","light_yellow"))
 elif respuesta.status_code == 204:
-    print(colored(f"Conexión Exitosa, Lamentablemente no se encuentran datos para devolver.\nCODE: {respuesta.status_code}", "yellow"))
+    print(colored("     > Status: Conexión Exitosa", "green"))
+    print(colored("     > Detalles: No se encuentran datos para devolver.", "red"))
+    print(colored(f"     > CODE: {respuesta.status_code}", "red"))
+    print(colored("     > Finalizando Programa Debido a problemas con la conexión. <", "red"))
     print(colored("\n----------==========================================----------\n","light_yellow"))
 elif respuesta.status_code == 403:
-    print(colored(f"Conexión Fallida (FORBIDDEN), El servidor detecta la petición pero el servidor no cumple con esta.\nCODE: {respuesta.status_code}", "red"))
+    print(colored("     > Status: Conexión Fallida (FORBIDDEN)", "red"))
+    print(colored("     > Detalles: El servidor detecta la petición pero el servidor no cumple con esta.", "red"))
+    print(colored(f"     > CODE: {respuesta.status_code}", "red"))
+    print(colored("     > Finalizando Programa Debido a problemas con la conexión. <", "red"))
     print(colored("\n----------==========================================----------\n","light_yellow"))
 else: 
-    print(colored(f"Conexión Fallida: {respuesta.status_code}.", "red"))
+    print(colored("     > Status: Conexión Fallida", "red"))
+    print(colored(f"     >  CODE: {respuesta.status_code}", "red"))
+    print(colored("     > Finalizando Programa Debido a problemas con la conexión. <", "red"))
     print(colored("\n----------==========================================----------\n","light_yellow"))
