@@ -22,13 +22,14 @@ def tarea1():
     return
 def tarea2():
     Year = datetime.datetime.today().strftime("%Y")
-    Month = datetime.datetime.today().strftime("%m")
+    #Month = datetime.datetime.today().strftime("%m")
+    Month = 15
     CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
     today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{CompleteDate}.html"
     status = requests.get(today_url)
     print(colored("\n> Validando URL...\n", "yellow"))
     if status.status_code == 200:
-        print(colored(">> URL Valida!\n", "green"))
+        print(colored(">> URL Valida!", "green"))
         #Funcionalidad del Codigo
         
         service = Service(executable_path="driver/chromedriver.exe")
@@ -46,17 +47,16 @@ def tarea2():
             for fila in filas:
                 celdas = fila.find_elements(By.TAG_NAME, 'td')
                 if celdas:
-                    # Suponemos que la profundidad está en la columna 5 (índice 4)
-                 profundidad_str = celdas[3].text.strip()  # Elimina espacios adicionales
-                 profundidad_str = profundidad_str.replace("km", "").strip()  # Elimina 'km' y espacios
+                 profundidad_str = celdas[3].text.strip()
+                 profundidad_str = profundidad_str.replace("km", "").strip()
                  
                 try:
-                    profundidad = float(profundidad_str.replace(",", "."))  # Convierte a float
+                    profundidad = float(profundidad_str.replace(",", "."))
                     profundidades.append(profundidad)
                 except ValueError:
                     print(colored(f"\n> Error al convertir profundidad: {profundidad_str}\n", "red"))
             
-            # Sumar todas las profundidades recolectadas
+          
             if profundidades:
                 profundidad_total = sum(profundidades)
                 print(colored(f"\n> La profundidad acumulada de hoy ({fecha_actual}) es de: {profundidad_total} km.\n", "green"))
@@ -67,7 +67,7 @@ def tarea2():
             driver.quit()
         
     else:
-        print(colored(">> Ups!, Algo ha salido mal. La URL puede ser inválida.", "red"))
+        print(colored(">> Ups!, Algo ha salido mal. La URL puede ser inválida.\n", "red"))
     return
                 
 def tarea3():
