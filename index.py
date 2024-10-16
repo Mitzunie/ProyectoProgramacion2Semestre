@@ -31,61 +31,7 @@ def tarea1():
         service = Service(executable_path="driver/chromedriver.exe")
         driver = webdriver.Chrome(service=service)
          
-        try:
-            driver.get(today_url)
-            time.sleep(3)
-
-            # Encuentra la tabla
-            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
-            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]  # Ignorar encabezado
-
-            # Listas para almacenar magnitudes y detalles de los sismos
-            sismos = []
-
-            for fila in filas:
-                celdas = fila.find_elements(By.TAG_NAME, 'td')
-                if len(celdas) >= 6:  # Asegurarse de que hay al menos 6 columnas
-                    fecha = celdas[0].text.strip()
-                    lugar = celdas[1].text.strip()
-                    profundidad = celdas[2].text.strip()
-                    magnitud_str = celdas[5].text.strip()  # Extrae la magnitud
-
-                    try:
-                        # Convierte magnitud a float
-                        magnitud = float(magnitud_str.replace(",", "."))
-                        # Almacena un diccionario con la información relevante
-                        sismos.append({
-                            "fecha": fecha,
-                            "lugar": lugar,
-                            "profundidad": profundidad,
-                            "magnitud": magnitud
-                        })
-
-                    except ValueError:
-                        print(colored(f"Error al convertir magnitud: {magnitud_str}", "red"))
-                        continue
-
-            # Verificación de la cantidad de sismos
-            if len(sismos) == 0:
-                print(colored("\n> No se encontraron sismos o las magnitudes no se pudieron convertir.\n", "red"))
-                return
-
-            # Ordenar los sismos por magnitud de mayor a menor
-            sismos_ordenados = sorted(sismos, key=lambda x: x['magnitud'], reverse=True)
-
-            # Mostrar el top 3
-            print(colored("\n> Top 3 sismos de mayor magnitud:\n", "green"))
-            for i, sismo in enumerate(sismos_ordenados[:3]):
-                print(colored(f"{i+1}. Fecha: {sismo['fecha']} | Lugar: {sismo['lugar']} | Magnitud: {sismo['magnitud']} | Profundidad: {sismo['profundidad']}", "cyan"))
-
-        except Exception as e:
-            print(colored(f"\n> Ocurrió un error: {str(e)}\n", "red"))
-
-        finally:
-            driver.quit()
-
-    else:
-        print(colored(">> Ups!, Algo ha salido mal. La URL puede ser inválida.", "red"))
+    return
 
 def tarea2():
     Year = datetime.datetime.today().strftime("%Y")
