@@ -123,8 +123,7 @@ def tarea9():
 def tarea10():
     return
 
-#url = "https://www.sismologia.cl/"
-url = "https://www.sismologia.cl/sismicidad/catalogo/2024/10/20241015.html"
+url = "https://www.sismologia.cl/"
 
 respuesta = requests.get(url)
 
