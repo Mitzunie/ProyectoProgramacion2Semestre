@@ -19,41 +19,56 @@ def opt():
             print(colored("\n----------=================================----------\n", "red"))
         return    
 def tarea1():
-    tlink = "https://sismologia.cl/"
-    status = requests.get(tlink)
+    Year = datetime.datetime.today().strftime("%Y")
+    Month = datetime.datetime.today().strftime("%m")
+    CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
+    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{CompleteDate}.html"
+    status = requests.get(today_url)
     print(colored("\n> Verificando URL...\n", "yellow"))
     if status.status_code == 200:
         print(colored("> URL Valida!", "green"))
         
         service = Service(executable_path="driver/chromedriver.exe")
         driver = webdriver.Chrome(service=service)
-        
+         
         try:
-            driver.get(tlink)
+            driver.get(today_url)
             time.sleep(3)
-            
-            tabla_sismologia = driver.find_element(By.CLASS_NAME, "sismologia")
-            filas = tabla_sismologia.find_elements(By.TAG_NAME, 'tr')[1:]
-                       # Listas para almacenar magnitudes y detalles de los sismos
+
+            # Encuentra la tabla
+            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
+            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]  # Ignorar encabezado
+
+            # Listas para almacenar magnitudes y detalles de los sismos
             sismos = []
 
             for fila in filas:
                 celdas = fila.find_elements(By.TAG_NAME, 'td')
                 if len(celdas) >= 6:  # Asegurarse de que hay al menos 6 columnas
+                    fecha = celdas[0].text.strip()
+                    lugar = celdas[1].text.strip()
+                    profundidad = celdas[2].text.strip()
                     magnitud_str = celdas[5].text.strip()  # Extrae la magnitud
 
                     try:
+                        # Convierte magnitud a float
                         magnitud = float(magnitud_str.replace(",", "."))
                         # Almacena un diccionario con la información relevante
                         sismos.append({
-                            "fecha": celdas[0].text.strip(),
-                            "lugar": celdas[1].text.strip(),
-                            "profundidad": celdas[2].text.strip(),
+                            "fecha": fecha,
+                            "lugar": lugar,
+                            "profundidad": profundidad,
                             "magnitud": magnitud
                         })
 
                     except ValueError:
                         print(colored(f"Error al convertir magnitud: {magnitud_str}", "red"))
+                        continue
+
+            # Verificación de la cantidad de sismos
+            if len(sismos) == 0:
+                print(colored("\n> No se encontraron sismos o las magnitudes no se pudieron convertir.\n", "red"))
+                return
 
             # Ordenar los sismos por magnitud de mayor a menor
             sismos_ordenados = sorted(sismos, key=lambda x: x['magnitud'], reverse=True)
