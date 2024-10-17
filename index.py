@@ -30,6 +30,84 @@ def tarea1():
         
         service = Service(executable_path="driver/chromedriver.exe")
         driver = webdriver.Chrome(service=service)
+        
+        try:
+            driver.get(today_url)
+            time.sleep(3)
+            
+            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
+            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
+            '''
+            magnitud = []
+            profundidad = []
+            ubicacion = []
+            fecha = []
+            
+            for fila in filas:
+                celdas = fila.find_elements(By.TAG_NAME, 'td')
+                if celdas:
+                    magnitud_str = celdas[4].text.strip()
+                    profundidad_str = celdas[3].text.strip()
+                    ubicacion_str = celdas[1].text.strip()
+                    fecha_str = celdas[2].text.strip()
+                    
+                try:
+                    magnitud_str = str(magnitud_str)
+                    profundidad_str = str(profundidad_str)
+                    ubicacion_str = str(ubicacion_str)
+                    magnitud.append(magnitud_str)
+                    profundidad.append(profundidad_str)
+                    ubicacion.append(ubicacion_str)
+                    fecha.append(fecha_str)
+                except ValueError:
+                    print(colored(f">> Error: No se pudo convertir un dato. > {magnitud_str} {profundidad_str} {ubicacion_str} {fecha_str} <", "red"))
+            '''
+            sismos = []  # Lista para almacenar los sismos como diccionarios
+            
+            for fila in filas:
+                celdas = fila.find_elements(By.TAG_NAME, 'td')
+                if celdas:
+                    # Extraer datos de cada columna
+                    magnitud_str = celdas[4].text.strip()  # Columna de magnitud
+                    profundidad_str = celdas[3].text.strip()  # Columna de profundidad
+                    ubicacion_str = celdas[0].text.strip()  # Columna de ubicación
+                    fecha_str = celdas[1].text.strip()  # Columna de fecha
+                    
+                    try:
+                        # Convertimos la magnitud a float para poder ordenarla
+                        magnitud_str = magnitud_str.replace("Ml", "")
+                        magnitud_str = magnitud_str.replace(" ", "")
+                        magnitud = float(magnitud_str)
+                        profundidad_str = profundidad_str.replace("km", "")
+                        profundidad_str = profundidad_str.replace(" ", "")
+                        profundidad = int(profundidad_str)
+                        _, ubicacion = ubicacion_str.split("\n")
+                        # Guardamos los detalles del sismo en un diccionario
+                        sismo = {
+                            'magnitud': magnitud,
+                            'profundidad': profundidad,
+                            'ubicacion': ubicacion,
+                            'fecha': fecha_str
+                        }
+                        sismos.append(sismo)
+                    except ValueError:
+                        print(colored(f">> Error: No se pudo convertir la magnitud o profundidad: {magnitud_str} {profundidad_str}", "red"))
+            
+            # Ordenar la lista de sismos por magnitud (de mayor a menor)
+            sismos_ordenados = sorted(sismos, key=lambda x: x['magnitud'], reverse=True)
+            
+            # Mostrar los 3 sismos de mayor magnitud
+            print(colored("\n> Top 3 sismos de mayor magnitud del día:\n", "green"))
+            for i, sismo in enumerate(sismos_ordenados[:3]):  # Solo tomamos los primeros 3
+                print(colored(f"{i + 1}. Fecha y Hora [UTC]: {sismo['fecha']} | Ubicación: {sismo['ubicacion']} | Magnitud: {sismo['magnitud']} Ml | Profundidad: {sismo['profundidad']} Km\n", "yellow"))
+            
+        finally:
+            driver.quit()
+
+    else:
+        print(colored("> Error: No se pudo acceder a la URL", "red"))
+            
+            
          
     return
 
