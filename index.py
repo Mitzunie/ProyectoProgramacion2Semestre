@@ -81,7 +81,7 @@ def tarea1():
                         profundidad_str = profundidad_str.replace("km", "")
                         profundidad_str = profundidad_str.replace(" ", "")
                         profundidad = int(profundidad_str)
-                        _, ubicacion = ubicacion_str.split("\n")
+                        fecha_str, ubicacion = ubicacion_str.split("\n")
                         # Guardamos los detalles del sismo en un diccionario
                         sismo = {
                             'magnitud': magnitud,
@@ -93,13 +93,12 @@ def tarea1():
                     except ValueError:
                         print(colored(f">> Error: No se pudo convertir la magnitud o profundidad: {magnitud_str} {profundidad_str}", "red"))
             
-            # Ordenar la lista de sismos por magnitud (de mayor a menor)
             sismos_ordenados = sorted(sismos, key=lambda x: x['magnitud'], reverse=True)
             
             # Mostrar los 3 sismos de mayor magnitud
-            print(colored("\n> Top 3 sismos de mayor magnitud del día:\n", "green"))
-            for i, sismo in enumerate(sismos_ordenados[:3]):  # Solo tomamos los primeros 3
-                print(colored(f"{i + 1}. Fecha y Hora [UTC]: {sismo['fecha']} | Ubicación: {sismo['ubicacion']} | Magnitud: {sismo['magnitud']} Ml | Profundidad: {sismo['profundidad']} Km\n", "yellow"))
+            print(colored("\n> Top 3 sismos de mayor magnitud:\n", "green"))
+            for i, sismo in enumerate(sismos_ordenados[:3]):
+                print(colored(f"{i + 1}. Fecha y Hora: {sismo['fecha']} | Ubicación: {sismo['ubicacion']} | Magnitud: {sismo['magnitud']} Ml | Profundidad: {sismo['profundidad']} Km\n", "yellow"))
             
         finally:
             driver.quit()
@@ -214,16 +213,16 @@ if respuesta.status_code == 200:
 
     while True:
         print("¡Bienvenido(a)!, ¿Qué deseas hacer?")
-        print("1.- Mostrar Ranking de 3 Sismos con Mayor Magnitud")
-        print(f"2.- Mostrar Profundidad Acumulada De Todos los Sismos del Día({fecha_actual}).")
-        print("3.- Mostrar Sismo De Menor Magnitud")
+        print(f"1.- Mostrar Ranking de 3 Sismos con Mayor Magnitud")
+        print(f"2.- Mostrar Profundidad Acumulada De Todos los Sismos del Día({fecha_actual})")
+        print(f"3.- Mostrar Sismo De Menor Magnitud")
         print("4.- Mostrar Sismos Ocurridos En Un Intervalo De Tiempo.")
-        print("5.- Mostrar Datos Del Ultimo Sismo.")
-        print("6.- Mostrar Tiempo Transcurrido Desde El Ultimo Sismo")
+        print(f"5.- Mostrar Datos Del Ultimo Sismo.")
+        print(f"6.- Mostrar Tiempo Transcurrido Desde El Ultimo Sismo")
         print("7.- Enviar Información Del Ultimo Sismo Al Correo")
-        print("8.- Mostrar Grafico Intensidad de Sismos")
-        print("9.- Mostrar Grafico Profundidad")
-        print("10.- Grafico Comparativo Sismos")
+        print(f"8.- Mostrar Grafico Intensidad de Sismos")
+        print(f"9.- Mostrar Grafico Profundidad")
+        print(f"10.- Grafico Comparativo Sismos")
         print("0.- Salir del Programa")
     
         opcion = opt()
