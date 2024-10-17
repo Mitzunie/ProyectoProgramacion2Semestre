@@ -37,32 +37,8 @@ def tarea1():
             
             tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
             filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
-            '''
-            magnitud = []
-            profundidad = []
-            ubicacion = []
-            fecha = []
-            
-            for fila in filas:
-                celdas = fila.find_elements(By.TAG_NAME, 'td')
-                if celdas:
-                    magnitud_str = celdas[4].text.strip()
-                    profundidad_str = celdas[3].text.strip()
-                    ubicacion_str = celdas[1].text.strip()
-                    fecha_str = celdas[2].text.strip()
-                    
-                try:
-                    magnitud_str = str(magnitud_str)
-                    profundidad_str = str(profundidad_str)
-                    ubicacion_str = str(ubicacion_str)
-                    magnitud.append(magnitud_str)
-                    profundidad.append(profundidad_str)
-                    ubicacion.append(ubicacion_str)
-                    fecha.append(fecha_str)
-                except ValueError:
-                    print(colored(f">> Error: No se pudo convertir un dato. > {magnitud_str} {profundidad_str} {ubicacion_str} {fecha_str} <", "red"))
-            '''
-            sismos = []  # Lista para almacenar los sismos como diccionarios
+  
+            sismos = []
             
             for fila in filas:
                 celdas = fila.find_elements(By.TAG_NAME, 'td')
@@ -119,7 +95,6 @@ def tarea2():
     print(colored("\n> Validando URL...\n", "yellow"))
     if status.status_code == 200:
         print(colored(">> URL Valida!", "green"))
-        #Funcionalidad del Codigo
         
         service = Service(executable_path="driver/chromedriver.exe")
         driver = webdriver.Chrome(service=service)
