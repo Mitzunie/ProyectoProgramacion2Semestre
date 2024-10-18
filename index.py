@@ -101,7 +101,7 @@ def tarea2():
         
         try :
             driver.get(today_url)
-            time.sleep(3)
+            time.sleep(5)
             
             tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
             filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
@@ -120,7 +120,8 @@ def tarea2():
                 except ValueError:
                     print(colored(f"\n> Error al convertir profundidad: {profundidad_str}\n", "red"))
             
-          
+            print(colored("\nProfundidades Obtenidas:", "yellow"))
+            print(*profundidades, sep=", ")
             if profundidades:
                 profundidad_total = sum(profundidades)
                 print(colored(f"\n> La profundidad acumulada de hoy ({fecha_actual}) es de: {profundidad_total} km.\n", "green"))
