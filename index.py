@@ -2,7 +2,6 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-import pandas as pd
 import time
 import datetime
 from termcolor import colored
@@ -79,8 +78,6 @@ def tarea1():
     else:
         print(colored("> Error: No se pudo acceder a la URL", "red"))
             
-            
-         
     return
 
 def tarea2():
