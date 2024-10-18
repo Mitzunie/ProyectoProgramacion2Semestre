@@ -43,7 +43,6 @@ def tarea1():
             for fila in filas:
                 celdas = fila.find_elements(By.TAG_NAME, 'td')
                 if celdas:
-                    # Extraer datos de cada columna
                     magnitud_str = celdas[4].text.strip()
                     profundidad_str = celdas[3].text.strip()
                     ubicacion_str = celdas[0].text.strip()  
