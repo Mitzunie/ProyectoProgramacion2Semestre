@@ -49,7 +49,7 @@ def send_gmail(gmail, magnitud, profundidad, ubicacion, fecha):
             </ul>
             <p>Este reporte fue generado por el sistema de <strong>Sismología Finis</strong>.</p>
             <p style="color: #5D6D7E;">Gracias por usar nuestro servicio.</p>
-            <p style="color: #5D6D7E;">Fuente de la Información: <a href="https://www.sismologia.cl" style="color: #2980B9;">Sismología Chile</a>.</p>
+            <p style="color: #5D6D7E;">Fuente de la Información: https://www.sismologia.cl </p>
         </body>
         </html>
         """
@@ -289,7 +289,6 @@ def tarea7():
             print(colored("\n>> Debes ingresar un correo electronico valido!, Intentalo nuevamente...", "red"))
     '''
     correo = input(colored("\n>> Ingresa tu correo para enviar la información del ultimo sismo: ", "cyan"))
-     # Obtener la URL del día actual
     Year = datetime.datetime.today().strftime("%Y")
     Month = datetime.datetime.today().strftime("%m")
     CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
@@ -300,7 +299,6 @@ def tarea7():
     if status.status_code == 200:
         print(colored("> URL Válida!", "green"))
         
-        # Inicializar WebDriver
         service = Service(executable_path="driver/chromedriver.exe")
         driver = webdriver.Chrome(service=service)
         
@@ -308,7 +306,6 @@ def tarea7():
             driver.get(today_url)
             time.sleep(5)
             
-            # Extraer la tabla de sismos
             tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
             filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
             
@@ -323,14 +320,12 @@ def tarea7():
                     fecha_str = celdas[1].text.strip()
                     
                     try:
-                        # Limpiar y convertir los datos
                         magnitud_str = magnitud_str.replace("Ml", "").strip()
                         magnitud = float(magnitud_str)
                         profundidad_str = profundidad_str.replace("km", "").strip()
                         profundidad = int(profundidad_str)
                         fecha_str, ubicacion = ubicacion_str.split("\n")
-                    
-                        # Agregar el sismo a la lista
+
                         sismo = {
                             'magnitud': magnitud,
                             'profundidad': profundidad,
@@ -341,7 +336,6 @@ def tarea7():
                     except ValueError:
                         print(colored(f">> Error: No se pudo convertir la magnitud o profundidad: {magnitud_str} {profundidad_str}", "red"))
             
-            # Extraer el último sismo
             if sismos:
                 ultimo_sismo = sismos[0]
                 print(colored("\n> Último sismo registrado:", "green"))
@@ -350,7 +344,6 @@ def tarea7():
                 print(f"- Magnitud: {ultimo_sismo['magnitud']} Ml")
                 print(f"- Profundidad: {ultimo_sismo['profundidad']} Km\n")
                 
-                # Enviar correo con la información del último sismo
                 print(colored("\n>> Enviando información del último sismo al correo.", "green"))
                 send_gmail(correo, ultimo_sismo['magnitud'], ultimo_sismo['profundidad'], ultimo_sismo['ubicacion'], ultimo_sismo['fecha'])
             else:
