@@ -44,13 +44,12 @@ def tarea1():
                 celdas = fila.find_elements(By.TAG_NAME, 'td')
                 if celdas:
                     # Extraer datos de cada columna
-                    magnitud_str = celdas[4].text.strip()  # Columna de magnitud
-                    profundidad_str = celdas[3].text.strip()  # Columna de profundidad
-                    ubicacion_str = celdas[0].text.strip()  # Columna de ubicación
-                    fecha_str = celdas[1].text.strip()  # Columna de fecha
+                    magnitud_str = celdas[4].text.strip()
+                    profundidad_str = celdas[3].text.strip()
+                    ubicacion_str = celdas[0].text.strip()  
+                    fecha_str = celdas[1].text.strip()  
                     
                     try:
-                        # Convertimos la magnitud a float para poder ordenarla
                         magnitud_str = magnitud_str.replace("Ml", "")
                         magnitud_str = magnitud_str.replace(" ", "")
                         magnitud = float(magnitud_str)
@@ -58,7 +57,7 @@ def tarea1():
                         profundidad_str = profundidad_str.replace(" ", "")
                         profundidad = int(profundidad_str)
                         fecha_str, ubicacion = ubicacion_str.split("\n")
-                        # Guardamos los detalles del sismo en un diccionario
+                    
                         sismo = {
                             'magnitud': magnitud,
                             'profundidad': profundidad,
@@ -71,7 +70,6 @@ def tarea1():
             
             sismos_ordenados = sorted(sismos, key=lambda x: x['magnitud'], reverse=True)
             
-            # Mostrar los 3 sismos de mayor magnitud
             print(colored("\n> Top 3 sismos de mayor magnitud:\n", "green"))
             for i, sismo in enumerate(sismos_ordenados[:3]):
                 print(colored(f"{i + 1}. Fecha y Hora: {sismo['fecha']} | Ubicación: {sismo['ubicacion']} | Magnitud: {sismo['magnitud']} Ml | Profundidad: {sismo['profundidad']} Km\n", "yellow"))
