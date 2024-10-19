@@ -9,6 +9,8 @@ import datetime
 from termcolor import colored
 import smtplib
 import email_validator
+import matplotlib.pyplot as plt
+import numpy as np
 
 def opt():
     while True:
@@ -540,12 +542,236 @@ def tarea7():
     return
 
 def tarea8():
+    Year = datetime.datetime.today().strftime("%Y")
+    Month = datetime.datetime.today().strftime("%m")
+    CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
+
+    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{CompleteDate}.html"
+    status = requests.get(today_url)
+
+    print(colored("\n> Verificando URL...\n", "yellow"))
+    if status.status_code == 200:
+        print(colored("> URL Valida!", "green"))
+        
+        service = Service(executable_path="driver/chromedriver.exe")
+        driver = webdriver.Chrome(service=service)
+        
+        try:
+            driver.get(today_url)
+            time.sleep(3)
+            
+            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
+            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
+      
+            sismos = []
+            
+            for fila in filas:
+                celdas = fila.find_elements(By.TAG_NAME, 'td')
+                if celdas:
+                    magnitud_str = celdas[4].text.strip()
+                    profundidad_str = celdas[3].text.strip()
+                    ubicacion_str = celdas[0].text.strip()  
+                    
+                    try:
+                        magnitud_str = magnitud_str.replace("Ml", "").replace("Mw", "").replace("Mww", "").replace(" ", "")
+                        magnitud = float(magnitud_str)
+                        profundidad_str = profundidad_str.replace("km", "").replace(" ", "")
+                        profundidad = int(profundidad_str)
+                        fecha_str, ubicacion = ubicacion_str.split("\n")
+                    
+                        sismo = {
+                            'magnitud': magnitud,
+                            'profundidad': profundidad,
+                            'ubicacion': ubicacion,
+                            'fecha': fecha_str
+                        }
+                        sismos.append(sismo)
+                    except ValueError:
+                        print(colored(f">> Error: No se pudo convertir la magnitud o profundidad: {magnitud_str} {profundidad_str}", "red"))
+            
+            sismos_ordenados = sorted(sismos, key=lambda x: x['magnitud'], reverse=True)
+            
+            print(colored("\n> Top 3 sismos de mayor magnitud:\n", "green"))
+            top_3_sismos = sismos_ordenados[:3]
+
+            for i, sismo in enumerate(top_3_sismos):
+                print(colored(f"{i + 1}. Fecha y Hora: {sismo['fecha']} | Ubicación: {sismo['ubicacion']} | Magnitud: {sismo['magnitud']} Ml | Profundidad: {sismo['profundidad']} Km\n", "yellow"))
+
+            fechas = [sismo['fecha'] for sismo in top_3_sismos]
+            magnitudes = [sismo['magnitud'] for sismo in top_3_sismos]
+
+            x = np.arange(len(fechas))
+            width = 0.35 
+
+            fig, ax = plt.subplots()
+            
+            barras_magnitud = ax.bar(x + width/2, magnitudes, width, label='Magnitud (Ml)', color='tab:red')
+
+            ax.set_xlabel('Sismos (Fecha)')
+            ax.set_ylabel('Magnitud')
+            ax.set_title('Top 3 Sismos: Magnitud')
+            ax.set_xticks(x)
+            ax.set_xticklabels(fechas)
+            ax.legend()
+
+            fig.tight_layout()
+            plt.show()
+
+        finally:
+            driver.quit()
+
+    else:
+        print(colored("> Error: No se pudo acceder a la URL", "red"))
     return
 
 def tarea9():
+    Year = datetime.datetime.today().strftime("%Y")
+    Month = datetime.datetime.today().strftime("%m")
+    CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
+
+    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{CompleteDate}.html"
+    status = requests.get(today_url)
+
+    print(colored("\n> Verificando URL...\n", "yellow"))
+    if status.status_code == 200:
+        print(colored("> URL Valida!", "green"))
+        
+        service = Service(executable_path="driver/chromedriver.exe")
+        driver = webdriver.Chrome(service=service)
+        
+        try:
+            driver.get(today_url)
+            time.sleep(3)
+            
+            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
+            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
+      
+            sismos = []
+            
+            for fila in filas:
+                celdas = fila.find_elements(By.TAG_NAME, 'td')
+                if celdas:
+                    profundidad_str = celdas[3].text.strip()
+                    ubicacion_str = celdas[0].text.strip()  
+                    fecha_str = celdas[1].text.strip()  
+                    
+                    try:
+                        profundidad_str = profundidad_str.replace("km", "").replace(" ", "")
+                        profundidad = int(profundidad_str)
+                        fecha_str, ubicacion = ubicacion_str.split("\n")
+                    
+                        sismo = {
+                            'profundidad': profundidad,
+                            'fecha': fecha_str,
+                            'ubicacion': ubicacion
+                        }
+                        sismos.append(sismo)
+                    except ValueError:
+                        print(colored(f">> Error: No se pudo convertir la profundidad: {profundidad_str}", "red"))
+            
+            print(colored(f"\n> Sismos del día: {len(sismos)}\n", "green"))
+
+            fechas = [sismo['fecha'] for sismo in sismos]
+            profundidades = [sismo['profundidad'] for sismo in sismos]
+
+            fig, ax = plt.subplots()
+
+            ax.bar(fechas, profundidades, color='tab:blue')
+
+            ax.set_xlabel('Sismos (Fecha)')
+            ax.set_ylabel('Profundidad (km)')
+            ax.set_title('Comparación de la Profundidad de Todos los Sismos del Día')
+            plt.xticks(rotation=90)
+
+            fig.tight_layout()
+            plt.show()
+
+        finally:
+            driver.quit()
+
+    else:
+        print(colored("> Error: No se pudo acceder a la URL", "red"))
     return
 
 def tarea10():
+    Year = datetime.datetime.today().strftime("%Y")
+    Month = datetime.datetime.today().strftime("%m")
+    CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
+
+    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{CompleteDate}.html"
+    status = requests.get(today_url)
+
+    print(colored("\n> Verificando URL...\n", "yellow"))
+    if status.status_code == 200:
+        print(colored("> URL Valida!", "green"))
+        
+        service = Service(executable_path="driver/chromedriver.exe")
+        driver = webdriver.Chrome(service=service)
+        
+        try:
+            driver.get(today_url)
+            time.sleep(3)
+            
+            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
+            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
+      
+            sismos = []
+            
+            for fila in filas:
+                celdas = fila.find_elements(By.TAG_NAME, 'td')
+                if celdas:
+                    magnitud_str = celdas[4].text.strip()
+                    profundidad_str = celdas[3].text.strip()
+                    ubicacion_str = celdas[0].text.strip()  
+                    fecha_str = celdas[1].text.strip()  
+                    
+                    try:
+                        magnitud_str = magnitud_str.replace("Ml", "").replace("Mw", "").replace("Mww", "").replace(" ", "")
+                        magnitud = float(magnitud_str)
+                        profundidad_str = profundidad_str.replace("km", "").replace(" ", "")
+                        profundidad = int(profundidad_str)
+                        fecha_str, ubicacion = ubicacion_str.split("\n")
+                    
+                        sismo = {
+                            'magnitud': magnitud,
+                            'profundidad': profundidad,
+                            'fecha': fecha_str,
+                            'ubicacion': ubicacion
+                        }
+                        sismos.append(sismo)
+                    except ValueError:
+                        print(colored(f">> Error: No se pudo convertir la magnitud o profundidad: {magnitud_str} {profundidad_str}", "red"))
+            
+            print(colored(f"\n> Sismos del día: {len(sismos)}\n", "green"))
+
+            fechas = [sismo['fecha'] for sismo in sismos]
+            profundidades = [sismo['profundidad'] for sismo in sismos]
+            magnitudes = [sismo['magnitud'] for sismo in sismos]
+
+            x = np.arange(len(fechas))
+            width = 0.35 
+
+            fig, ax = plt.subplots()
+
+            barras_profundidad = ax.bar(x - width/2, profundidades, width, label='Profundidad (km)', color='tab:blue')
+
+            barras_magnitud = ax.bar(x + width/2, magnitudes, width, label='Magnitud (Ml)', color='tab:red')
+
+            ax.set_xlabel('Sismos (Fecha)')
+            ax.set_ylabel('Valores')
+            ax.set_title('Comparación de la Profundidad y Magnitud de Todos los Sismos del Día')
+            ax.set_xticks(x)
+            ax.set_xticklabels(fechas, rotation=90)
+            ax.legend()
+
+            fig.tight_layout()
+            plt.show()
+
+        finally:
+            driver.quit()
+
+    else:
+        print(colored("> Error: No se pudo acceder a la URL", "red"))
     return
 
 url = "https://www.sismologia.cl/"
@@ -568,9 +794,9 @@ if respuesta.status_code == 200:
         print("5.- Mostrar Datos Del Ultimo Sismo.")
         print("6.- Mostrar Tiempo Transcurrido Desde El Ultimo Sismo")
         print("7.- Enviar Información Del Ultimo Sismo Al Correo")
-        print("8.- Mostrar Grafico Intensidad de Sismos")
-        print("9.- Mostrar Grafico Profundidad")
-        print("10.- Grafico Comparativo Sismos")
+        print("8.- Mostrar Grafico Intensidad De Los 3 Sismos De Mayor Magnitud")
+        print("9.- Mostrar Grafico Profundidad De Los 3 Sismos De Mayor Magnitud")
+        print(f"10.- Grafico Comparativo Sismos De Todos Los Sismos Del Día({fecha_actual})")
         print("0.- Salir del Programa")
     
         opcion = opt()
