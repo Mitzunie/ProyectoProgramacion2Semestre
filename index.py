@@ -76,13 +76,7 @@ def send_gmail(gmail, magnitud, profundidad, ubicacion, fecha):
         return print(colored("\n>> Correo Enviado, Revisa tu Inbox!\n", "green"))
     except Exception as e:
         print(colored(f"\n>> Error: {str(e)}", "red"))
-  
-def validar_num(string):
-    if str(string).isdigit():
-        numero = int(string)
-        return numero
-    else:
-        return False
+    return
     
 def tarea1():
     Year = datetime.datetime.today().strftime("%Y")
@@ -262,43 +256,212 @@ def tarea3():
 
 def tarea4():
     
-    print("\n> Debes ingresar el intervalo de tiempo (solo horas) para buscar los sismos.\n")
-    
+    print("\n> Debes ingresar la fecha y el intervalo de horas para buscar los sismos.\n")
     while True:
-        hora_inicio = input("> Ingresa la hora de inicio (HH, 0-23): ")
-        if validar_num(hora_inicio):
-            break
+        ano = input("> Ingresa el año (YYYY): ")
+        mes = input("> Ingresa el mes (MM): ")
+        dia = input("> Ingresa el día (DD): ")
+
+        hora_inicio = input("> Ingresa la hora de inicio (HH:MM): ")
+        hora_fin = input("> Ingresa la hora de finalización (HH:MM): ")
+
+        fecha_inicio_str = f"{ano}-{mes}-{dia} {hora_inicio}"
+        fecha_fin_str = f"{ano}-{mes}-{dia} {hora_fin}"
+
+        fecha_inicio = datetime.datetime.strptime(fecha_inicio_str, '%Y-%m-%d %H:%M')
+        
+        fecha_fin = datetime.datetime.strptime(fecha_fin_str, '%Y-%m-%d %H:%M')
+
+        hoy = datetime.datetime.now()
+        
+        if fecha_inicio >= fecha_fin:
+            print(colored("> Error: La hora de inicio debe ser menor que la hora de fin.", "red"))
+        elif fecha_inicio > hoy and fecha_fin > hoy:
+            print("> No puedes ver sismos a futuro!")
         else:
-            print(colored(">> Debes Ingresar un Digito!!!", "yellow"))
-    minuto_inicio = int(input("> Ingresa los minutos de inicio (MM, 0-59): "))
-    
-    hora_fin = int(input("> Ingresa la hora de finalización (HH, 0-23): "))
-    minuto_fin = int(input("> Ingresa los minutos de finalización (MM, 0-59): "))
-    
-    Year = input("> Ingresa el año (YYYY): ")
-    Month = input("> Ingresa el mes (MM): ")
-    Day = input("> Ingresa el día (DD): ")
-    fecha_string = f"{Year}{Month}{Day}"
-    
-    fecha_inicio_str = f"{Year}-{Month}-{Day} {hora_inicio}:{minuto_inicio}"
-    fecha_fin_str = f"{Year}-{Month}-{Day} {hora_fin}:{minuto_fin}"
+            break
 
-    fecha_inicio = datetime.datetime.strptime(fecha_inicio_str, '%Y-%m-%d %H:%M')
-    fecha_fin = datetime.datetime.strptime(fecha_fin_str, '%Y-%m-%d %H:%M')
+    CompleteDate = f"{ano}{mes}{dia}"
+    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{ano}/{mes}/{CompleteDate}.html"
 
-    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{fecha_string}.html"
     status = requests.get(today_url)
-
     print(colored("\n> Verificando URL...\n", "yellow"))
     if status.status_code == 200:
         print(colored("> URL Valida!", "green"))
+
+        service = Service(executable_path="driver/chromedriver.exe")
+        driver = webdriver.Chrome(service=service)
+
+        try:
+            driver.get(today_url)
+            time.sleep(3)
+
+            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
+            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
+
+            sismos_en_rango = []
+
+            for fila in filas:
+                celdas = fila.find_elements(By.TAG_NAME, 'td')
+                if celdas:
+                    magnitud_str = celdas[4].text.strip()
+                    profundidad_str = celdas[3].text.strip().replace("km", "").replace(" ", "")
+                    fecha_str, ubicacion_str = celdas[0].text.strip().split("\n")
+
+                    try:
+                        fecha_sismo = datetime.datetime.strptime(fecha_str, '%Y-%m-%d %H:%M:%S')
+                        magnitud_str = magnitud_str.replace("Ml", "").replace("Mw", "").replace("Mww", "")
+                        profundidad = int(profundidad_str)
+                        
+                        if fecha_inicio <= fecha_sismo <= fecha_fin:
+                            sismo = {
+                                'fecha': fecha_sismo,
+                                'magnitud': magnitud_str,
+                                'ubicacion': ubicacion_str,
+                                'profundidad': profundidad
+                            }
+                            sismos_en_rango.append(sismo)
+                    except Exception as e:
+                        print(colored(f"\n>> Error procesando los datos: {str(e)}", "red"))
+
+            if sismos_en_rango:
+                print(colored("\n> Sismos ocurridos en el intervalo de tiempo:", "green"))
+                for i, sismo in enumerate(sismos_en_rango, 1):
+                    print(colored(f"{i}. Fecha y Hora: {sismo['fecha']} | Ubicación: {sismo['ubicacion']} | Magnitud: {sismo['magnitud']} Ml | Profundidad: {sismo['profundidad']} Km", "yellow"))
+            else:
+                print(colored("> No se encontraron sismos en el intervalo de horas proporcionado.", "yellow"))
+
+        except Exception as e:
+            print(colored(f"\n> Ocurrió un error: {str(e)}\n", "red"))
+
+        finally:
+            print("\n")
+            driver.quit()
+
     else:
-        print(colored("\n>> Error: URL Invalida\n", "red"))
-    return
+        print(colored("> Error: No se pudo acceder a la URL", "red"))
+        return
+    
 def tarea5():
+    Year = datetime.datetime.today().strftime("%Y")
+    Month = datetime.datetime.today().strftime("%m")
+    CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
+    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{CompleteDate}.html"
+    status = requests.get(today_url)
+    print(colored("\n> Verificando URL...\n", "yellow"))
+
+    if status.status_code == 200:
+        print(colored("> URL Válida!", "green"))
+        
+        service = Service(executable_path="driver/chromedriver.exe")
+        driver = webdriver.Chrome(service=service)
+        
+        try:
+            driver.get(today_url)
+            time.sleep(5)
+            
+            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
+            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
+            
+            sismos = []
+            
+            for fila in filas:
+                celdas = fila.find_elements(By.TAG_NAME, 'td')
+                if celdas:
+                    magnitud_str = celdas[4].text.strip()
+                    profundidad_str = celdas[3].text.strip()
+                    ubicacion_str = celdas[0].text.strip()  
+                    fecha_str = celdas[1].text.strip()
+                    
+                    try:
+                        magnitud_str = magnitud_str.replace("Ml", "").replace("Mw", "").replace("Mww", "").strip()
+                        magnitud = float(magnitud_str)
+                        profundidad_str = profundidad_str.replace("km", "").strip()
+                        profundidad = int(profundidad_str)
+                        fecha_str, ubicacion = ubicacion_str.split("\n")
+
+                        sismo = {
+                            'magnitud': magnitud,
+                            'profundidad': profundidad,
+                            'ubicacion': ubicacion,
+                            'fecha': fecha_str
+                        }
+                        sismos.append(sismo)
+                    except ValueError:
+                        print(colored(f">> Error: No se pudo convertir la magnitud o profundidad: {magnitud_str} {profundidad_str}", "red"))
+            
+            if sismos:
+                ultimo_sismo = sismos[0]
+                print(colored("\n> Último sismo registrado:", "green"))
+                print(f"- Fecha y Hora: {ultimo_sismo['fecha']}")
+                print(f"- Ubicación: {ultimo_sismo['ubicacion']}")
+                print(f"- Magnitud: {ultimo_sismo['magnitud']} Ml")
+                print(f"- Profundidad: {ultimo_sismo['profundidad']} Km\n")
+                
+            else:
+                print(colored("\n>> No se encontraron sismos para hoy.", "red"))
+        
+        finally:
+            driver.quit()
+
+    else:
+        print(colored("> Error: No se pudo acceder a la URL", "red"))
+        
     return
+
 def tarea6():
+    print("\n> Buscando el último sismo registrado...\n")
+    
+    Year = datetime.datetime.today().strftime("%Y")
+    Month = datetime.datetime.today().strftime("%m")
+    CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
+    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{CompleteDate}.html"
+    fecha_actual = datetime.datetime.now()
+    
+    status = requests.get(today_url)
+    print(colored(f"\n> Verificando URL para la fecha: {fecha_actual.strftime('%d/%m/%Y')}...\n", "yellow"))
+    
+    if status.status_code == 200:
+        print(colored("> URL Valida!", "green"))
+        service = Service(executable_path="driver/chromedriver.exe")
+        driver = webdriver.Chrome(service=service)
+        
+        try:
+            driver.get(today_url)
+            time.sleep(3)
+            
+            tabla_sismos = driver.find_element(By.CSS_SELECTOR, ".sismologia.detalle")
+            filas = tabla_sismos.find_elements(By.TAG_NAME, 'tr')[1:]
+            
+            sismos = []
+            
+            for fila in filas:
+                celdas = fila.find_elements(By.TAG_NAME, 'td')
+                if celdas:
+                    fecha_str = celdas[0].text.strip()
+                    fecha_str, _ = fecha_str.split("\n")
+                    try:
+                        fecha_datetime = datetime.datetime.strptime(fecha_str, "%Y-%m-%d %H:%M:%S")
+                        sismos.append(fecha_datetime)
+                    except ValueError:
+                        print(colored(f">> Error: No se pudo convertir la fecha: {fecha_str}", "red"))
+            
+            if sismos:
+                ultimo_sismo = max(sismos)
+                tiempo_transcurrido = fecha_actual - ultimo_sismo
+                
+                print(colored("\n> Último sismo registrado:\n", "green"))
+                print(f"- Fecha y Hora: {ultimo_sismo.strftime('%Y-%m-%d %H:%M:%S')}")
+                print(f"- Tiempo transcurrido desde el último sismo: {tiempo_transcurrido}\n")
+            else:
+                print(colored("\n>> No se encontraron sismos en el día actual.", "red"))
+        
+        finally:
+            driver.quit()
+    else:
+        print(colored("> Error: No se pudo acceder a la URL", "red"))
     return
+
 def tarea7():
     while True:
         correo = input(colored("\n>> Ingresa tu correo para enviar la información del ultimo sismo: ", "cyan"))
@@ -375,10 +538,13 @@ def tarea7():
         print(colored("> Error: No se pudo acceder a la URL", "red"))
         
     return
+
 def tarea8():
     return
+
 def tarea9():
     return
+
 def tarea10():
     return
 
