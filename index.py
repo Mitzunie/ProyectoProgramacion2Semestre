@@ -8,11 +8,12 @@ import time
 import datetime
 from termcolor import colored
 import smtplib
+import email_validator
 
 def opt():
     while True:
         opcion = input(colored("\n> Ingresa la tarea que deseas ejecutar: ", "cyan"))
-        if opcion.isdigit():
+        if str(opcion).isdigit():
             opcion = int(opcion)
             return opcion
         else:
@@ -21,7 +22,16 @@ def opt():
             print(colored("\n----------=================================----------\n", "red"))
         return    
     
+def validate_gmail(correo):
+    try:
+        validator = email_validator.validate_email(correo)
+        print(colored(f"\n>> El correo: {correo} es valido!", "green"))
+        return True
+    except email_validator.EmailNotValidError:
+        return False
+    
 def send_gmail(gmail, magnitud, profundidad, ubicacion, fecha):
+    
     try:
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
@@ -66,6 +76,13 @@ def send_gmail(gmail, magnitud, profundidad, ubicacion, fecha):
         return print(colored("\n>> Correo Enviado, Revisa tu Inbox!\n", "green"))
     except Exception as e:
         print(colored(f"\n>> Error: {str(e)}", "red"))
+  
+def validar_num(string):
+    if str(string).isdigit():
+        numero = int(string)
+        return numero
+    else:
+        return False
     
 def tarea1():
     Year = datetime.datetime.today().strftime("%Y")
@@ -98,7 +115,7 @@ def tarea1():
                     fecha_str = celdas[1].text.strip()  
                     
                     try:
-                        magnitud_str = magnitud_str.replace("Ml", "")
+                        magnitud_str = magnitud_str.replace("Ml", "").replace("Mw", "").replace("Mww", "")
                         magnitud_str = magnitud_str.replace(" ", "")
                         magnitud = float(magnitud_str)
                         profundidad_str = profundidad_str.replace("km", "")
@@ -211,7 +228,7 @@ def tarea3():
                     fecha_str = celdas[1].text.strip()  
                     
                     try:
-                        magnitud_str = magnitud_str.replace("Ml", "")
+                        magnitud_str = magnitud_str.replace("Ml", "").replace("Mw", "").replace("Mww", "")
                         magnitud_str = magnitud_str.replace(" ", "")
                         magnitud = float(magnitud_str)
                         profundidad_str = profundidad_str.replace("km", "")
@@ -244,51 +261,53 @@ def tarea3():
     return
 
 def tarea4():
-    print("\n> Debes ingresar el intervalo de tiempo para buscar los sismos.\n")
-    print("\n>> Fecha de Inicio Intervalo <<\n")
-    año1 = input("> Ingresa el año:")
-    mes1 = input("> Ingresa el mes:")
-    dia1 = input("> Ingresa el día:")
-    print("\n>> Fecha de Finalización Intervalo <<\n")
-    año2 = input("> Ingresa el año:")
-    mes2 = input("> Ingresa el mes:")
-    dia2 = input("> Ingresa el día:")
     
-    fecha_inicio = datetime.datetime(int(año1), int(mes1), int(dia1))
-    fecha_fin = datetime.datetime(int(año2), int(mes2), int(dia2))
+    print("\n> Debes ingresar el intervalo de tiempo (solo horas) para buscar los sismos.\n")
     
-    while fecha_inicio > fecha_actual or fecha_fin > fecha_actual:
-        print("\n> Fecha invalida, no puedes ver el futuro...\n")
-        print("\n>> Fecha de Inicio Intervalo <<\n")
-        año1 = input("> Ingresa el año:")
-        mes1 = input("> Ingresa el mes:")
-        dia1 = input("> Ingresa el día:")
-        print("\n>> Fecha de Finalización Intervalo <<\n")
-        año2 = input("> Ingresa el año:")
-        mes2 = input("> Ingresa el mes:")
-        dia2 = input("> Ingresa el día:")
+    while True:
+        hora_inicio = input("> Ingresa la hora de inicio (HH, 0-23): ")
+        if validar_num(hora_inicio):
+            break
+        else:
+            print(colored(">> Debes Ingresar un Digito!!!", "yellow"))
+    minuto_inicio = int(input("> Ingresa los minutos de inicio (MM, 0-59): "))
     
+    hora_fin = int(input("> Ingresa la hora de finalización (HH, 0-23): "))
+    minuto_fin = int(input("> Ingresa los minutos de finalización (MM, 0-59): "))
+    
+    Year = input("> Ingresa el año (YYYY): ")
+    Month = input("> Ingresa el mes (MM): ")
+    Day = input("> Ingresa el día (DD): ")
+    fecha_string = f"{Year}{Month}{Day}"
+    
+    fecha_inicio_str = f"{Year}-{Month}-{Day} {hora_inicio}:{minuto_inicio}"
+    fecha_fin_str = f"{Year}-{Month}-{Day} {hora_fin}:{minuto_fin}"
+
+    fecha_inicio = datetime.datetime.strptime(fecha_inicio_str, '%Y-%m-%d %H:%M')
+    fecha_fin = datetime.datetime.strptime(fecha_fin_str, '%Y-%m-%d %H:%M')
+
+    today_url = f"https://www.sismologia.cl/sismicidad/catalogo/{Year}/{Month}/{fecha_string}.html"
+    status = requests.get(today_url)
+
+    print(colored("\n> Verificando URL...\n", "yellow"))
+    if status.status_code == 200:
+        print(colored("> URL Valida!", "green"))
+    else:
+        print(colored("\n>> Error: URL Invalida\n", "red"))
     return
 def tarea5():
     return
 def tarea6():
     return
 def tarea7():
-    '''
     while True:
         correo = input(colored("\n>> Ingresa tu correo para enviar la información del ultimo sismo: ", "cyan"))
-        api_key = "37ba92c4f6114f74bb9542b5af24c272"
-        api = f"https://api.zerobounce.net/v2/validate?api_key={api_key}&email={correo}"
         print(colored(f"\n>> Iniciando validación del correo: {correo}", "yellow"))
-        api_call = requests.get(api)
-        resp = api_call.json()
-        if resp['status'] == 'valid':
-            print(colored("\n>> Correo Electronico Valido!", "green"))
+        if validate_gmail(correo):
             break
         else:
-            print(colored("\n>> Debes ingresar un correo electronico valido!, Intentalo nuevamente...", "red"))
-    '''
-    correo = input(colored("\n>> Ingresa tu correo para enviar la información del ultimo sismo: ", "cyan"))
+            print(colored(f"\n>> El correo: {correo} no es valido, intentalo nuevamente...", "red"))
+             
     Year = datetime.datetime.today().strftime("%Y")
     Month = datetime.datetime.today().strftime("%m")
     CompleteDate = datetime.datetime.today().strftime("%Y%m%d")
@@ -320,7 +339,7 @@ def tarea7():
                     fecha_str = celdas[1].text.strip()
                     
                     try:
-                        magnitud_str = magnitud_str.replace("Ml", "").strip()
+                        magnitud_str = magnitud_str.replace("Ml", "").replace("Mw", "").replace("Mww", "").strip()
                         magnitud = float(magnitud_str)
                         profundidad_str = profundidad_str.replace("km", "").strip()
                         profundidad = int(profundidad_str)
