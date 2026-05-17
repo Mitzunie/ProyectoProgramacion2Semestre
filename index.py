@@ -37,8 +37,8 @@ def send_gmail(gmail, magnitud, profundidad, ubicacion, fecha):
     try:
         smtp_server = "smtp.gmail.com"
         smtp_port = 587
-        email = "sismologiafinis@gmail.com"
-        password = "pwmcsetzvjwlwfbn"
+        email = ""
+        password = ""
     
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()
